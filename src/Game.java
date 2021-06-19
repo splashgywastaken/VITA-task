@@ -29,32 +29,42 @@ public class Game {
         //Ходы сделаны, карты на стол, теперь уже можно глянуть что там наворотил ИИ
         System.out.println("AI picked a card");
         System.out.println("AI pick is " + player2.getLastMove());
-        //Смотрим кто атаковал/защищался и делаем на основе этого вывод о том, сколько и кому полетит штрафных очков
-        int roundResult = 0;
-        if (player1.getState()){
+        //Распределение штрафных очков между игроками по результатам раунда
+        int roundResult = player1.getLastMove() - player2.getLastMove();
+        //Если разница в очках не равна нулю (не ничья)
+        if (roundResult != 0){
+            //Если атакует первый игрок
+            if (player1.getState()){
+                //Разница между атакой и защитой двух игроков - число положительное тогда атака
+                //первого игрока пробила защиту второго и он выиграл
+                if (roundResult > 0){
+                    //Выводим соответствующее сообщение
+                    System.out.println(player1.getName() + " won that round, " + player2.getName() + " will get " + Math.abs(roundResult) + " penalty points");
+                    player2.setPoints(Math.abs(roundResult));
 
-            //round if player1 attacks
-            roundResult = player2.getLastMove() - player1.getLastMove();
+                } else
+                //Иначе выводим сообщение о том, что защита второго игрока выстояла
+                    System.out.println(player2.getName() + "'s defence was successful");
 
-        } else
-            if (player2.getState()){
+            }
+            //Иначе, если атакует второй игрок
+            else if (player2.getState()){
+                //Разница между атакой и защитой двух игроков - число отрицательное тогда атака
+                //второго игрока пробила защиту первого и он выиграл
+                if (roundResult < 0){
+                    //Выводим соответствующее сообщение
+                    System.out.println(player2.getName() + " won that round, " + player1.getName() + " will get " + Math.abs(roundResult) + " penalty points");
+                    player1.setPoints(Math.abs(roundResult));
 
-            //round if player2 attacks
-            roundResult = player1.getLastMove() - player2.getLastMove();
+                } else {
+                //Иначе выводим сообщение о том, что защита второго игрока выстояла
+                    System.out.println(player1.getName() + "'s defence was successful");
 
+                }
+
+            }
         }
-        //Выводим информацию о том, что игрок номер 1 (его имя) молодец, а второй получает штрафные очки
-        if (roundResult < 0){
-            System.out.println(player1.getName() + " won that round, " + player2.getName() + " will get " + Math.abs(roundResult) + " penalty points");
-            player2.setPoints(Math.abs(roundResult));
-        }
-        //Аналогичная ситуация, только вот теперь все наоборот
-        else if (roundResult > 0) {
-
-            System.out.println(player2.getName() + " won that round, " + player1.getName() + " will get " + roundResult + " penalty points");
-            player1.setPoints(roundResult);
-
-        } //получаем ничью в случае если защита была удачной, а атака плохо постаралась
+        //получаем ничью в случае если разница между очками равна нулю
         else {
             System.out.println("Draw, no one will get penalty points");
         }
@@ -132,6 +142,8 @@ public class Game {
         }
         //Если мы вышли из цикла while то игра завершилась и одному из игроков можно праздновать победу
         System.out.printf("Results of game is %s", results(this.playerAI, this.playerAI));
+        System.out.println("User had " + playerUser.getPoints() + " points");
+        System.out.println("AI had " + playerAI.getPoints() + " points");
 
     }
     //Сеттер на текущее состояние игры
