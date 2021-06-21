@@ -2,115 +2,80 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 public class Game {
 
-    public boolean gameEnded = false;
-    private final AI playerAI = new AI();
-    private final User playerUser = new User();
+    private boolean gameEnded;
+    private final Player player1;
+    private final Player player2;
 
-    static private void switchSides(Player player1, Player player2, Game obj){
+    Game() {
+        gameEnded = false;
+        player1 = new User();
+        player2 = new AI();
+    }
 
-        //switching positions of attacker and defending one
-        Boolean boolSwitch = player1.getState();
+    private void switchSides(){
+
+        //Меняем позиции игроков на поле
+        boolean boolSwitch = player1.getState();
         player1.setState(!boolSwitch);
         player2.setState(boolSwitch);
 
-        //now we are switching decks of players
-        obj.switchDecks();
-
     }
 
-    static private void round(Player player1, Player player2, Game obj){
+    private void round() {
 
         //Ход первого игрока, вызываем метод класса по добавлению нового хода в "историю" ходов
-        System.out.println("Pick card to play");
+        System.out.println("Выберите карту для разыгровки в раунде");
         player1.addMove();
         //Ход второго игрока, проводим аналогичные действия
-        System.out.println("Player picked a card");
+        System.out.println("Игрок выбрал карту");
         player2.addMove();
         //Ходы сделаны, карты на стол, теперь уже можно глянуть что там наворотил ИИ
-        System.out.println("AI picked a card");
-        System.out.println("AI pick is " + player2.getLastMove());
+        System.out.println("ИИ выбрал карту");
+        System.out.println("выбор ИИ: " + player2.getLastMove());
         //Распределение штрафных очков между игроками по результатам раунда
-        int roundResult = player1.getLastMove() - player2.getLastMove();
-        //Если разница в очках не равна нулю (не ничья)
-        if (roundResult != 0){
-            //Если атакует первый игрок
-            if (player1.getState()){
-                //Разница между атакой и защитой двух игроков - число положительное тогда атака
-                //первого игрока пробила защиту второго и он выиграл
-                if (roundResult > 0){
-                    //Выводим соответствующее сообщение
-                    System.out.println(player1.getName() + " won that round, " + player2.getName() + " will get " + Math.abs(roundResult) + " penalty points");
-                    player2.setPoints(Math.abs(roundResult));
+        Player attacking = player1.getState() ? player1 : player2;
+        Player defending = player1.getState() ? player2 : player1;
 
-                } else
-                //Иначе выводим сообщение о том, что защита второго игрока выстояла
-                    System.out.println(player2.getName() + "'s defence was successful");
-
-            }
-            //Иначе, если атакует второй игрок
-            else if (player2.getState()){
-                //Разница между атакой и защитой двух игроков - число отрицательное тогда атака
-                //второго игрока пробила защиту первого и он выиграл
-                if (roundResult < 0){
-                    //Выводим соответствующее сообщение
-                    System.out.println(player2.getName() + " won that round, " + player1.getName() + " will get " + Math.abs(roundResult) + " penalty points");
-                    player1.setPoints(Math.abs(roundResult));
-
-                } else {
-                //Иначе выводим сообщение о том, что защита второго игрока выстояла
-                    System.out.println(player1.getName() + "'s defence was successful");
-
-                }
-
-            }
+        int roundResult = attacking.getLastMove() - defending.getLastMove();
+        if (roundResult > 0) {
+            //Выводим соответствующее сообщение
+            System.out.println(attacking.getName() + " выиграл этот раунд, " + defending.getName() +
+                    " получит " + roundResult + " штрафных очков");
+            defending.addPoints(roundResult);
+        }else {  //Иначе выводим сообщение о том, что защита  выстояла
+            System.out.println("Защита " + defending.getName() + " была успешна");
         }
-        //получаем ничью в случае если разница между очками равна нулю
-        else {
-            System.out.println("Draw, no one will get penalty points");
-        }
+
+
         //Делаем небольшую задержку перед сменой сторон
         try{
         TimeUnit.SECONDS.sleep(2);
         } catch (InterruptedException e){
-
             Thread.currentThread().interrupt();
-
         }
-        //Смена сторон (я это интерпретировал как то, что двум игрокам надо менятся всем, кроме штрафных очков)
-        // Т.е. колодой и позицией атакующего/защищающегося
-        switchSides(player1, player2, obj);
+        //Смена сторон
+        // Т.е. позицией атакующего/защищающегося
+        switchSides();
 
-        //Если у нас одна из колод пуста, то игра завершена
-        if (player1.getDeck().isEmpty() || player2.getDeck().isEmpty()){
-            //Ставим маркер о том, что игра завершилась на true
-            obj.setGameEnded(true);
-
-        }
+        gameEnded = player1.getDeck().isEmpty() || player2.getDeck().isEmpty();
         //конец раунда, больше ничего происходить не должно
     }
 
-    static private String results(Player player1, Player player2){
+    private String results(){
 
-        if (player1.getPoints() > player2.getPoints()){
+        if (player1.getPoints() < player2.getPoints()){
 
-            return player1.getName() + " won";
+            return "игрок " + player1.getName() + " победил ";
 
-        } else if (player1.getPoints() < player2.getPoints()){
+        } else if (player1.getPoints() > player2.getPoints()){
 
-            return player2.getName() + " won";
+            return "игрок " + player2.getName() + " победил ";
 
         } else {
 
-            return (" draw");
+            return (" ничья");
 
         }
-
-    }
-    private void switchDecks(){
-
-        var temp = playerAI.getDeck();
-        playerAI.cards = playerUser.cards;
-        playerUser.cards = temp;
 
     }
 
@@ -118,38 +83,30 @@ public class Game {
     public void game(){
 
         //Выбираем кто будет ходить первым и выводим соответствующие сообщения
-        System.out.println("Who will start the game? Type \"P\" for player or \"A\" for AI");
+        System.out.println("Кто ходит первым? Введите (на латиннице) \"P\" для игрока или \"A\" для ИИ");
         Scanner in = new Scanner(System.in);
         String whoStarts = in.nextLine();
         while (!(whoStarts.equals("P") || whoStarts.equals("A"))){
             //Проверка на дурака
-            System.out.println("Your input was incorrect, try again.");
-            System.out.print("\nYour pick is: ");
+            System.out.println("Ввод был некорректным, попробуйте снова.");
+            System.out.print("\nВы выбрали карту со значением: ");
             whoStarts = in.nextLine();
 
         }
         //Как раз таки соответствующие сообщения
-        System.out.println("The game has started the move begins the " + (whoStarts.equals("P") ? "player" : "AI"));
+        System.out.println("Игра начинается, первым ходит " + (whoStarts.equals("P") ? player1.getName() : player2.getName()));
         //Устанавливаем текующее состояние двух игроков
-        this.playerUser.setState(whoStarts.equals("P"));
-        this.playerAI.setState(whoStarts.equals("A"));
+        player1.setState(whoStarts.equals("P"));
+        player2.setState(whoStarts.equals("A"));
         //Пока игра не завершится, а точнее, пока не будет выполненно следующее условие, то играются раунды
-        while(!this.gameEnded){
-
+        while(!gameEnded){
             //Вызываем статический метод round для отыгрыша раундов
-            round(this.playerUser, this.playerAI, this);
-
+            round();
         }
         //Если мы вышли из цикла while то игра завершилась и одному из игроков можно праздновать победу
-        System.out.printf("Results of game is %s", results(this.playerAI, this.playerAI));
-        System.out.println("User had " + playerUser.getPoints() + " points");
-        System.out.println("AI had " + playerAI.getPoints() + " points");
-
-    }
-    //Сеттер на текущее состояние игры
-    public void setGameEnded(Boolean state){
-
-        this.gameEnded = state;
+        System.out.printf("Результаты игры таковы:  %s \n", results());
+        System.out.println("У игрока " + player1.getName() + " было " + player1.getPoints() + " очков");
+        System.out.println("У игрока " + player2.getName() + " было "  + player2.getPoints() + " очков");
 
     }
 

@@ -1,39 +1,70 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 //Абстрактный класс для более приятного построения методов и двух производных классов User и AI
 public abstract class Player {
 
     //Колода игроков
-    protected ArrayList<Integer> cards = new ArrayList<>();
+    protected LinkedList<Integer> cards;
     //Ходы игроков
-    protected ArrayList<Integer> moves = new ArrayList<>();
+    protected LinkedList<Integer> moves;
     //Штрафные очки
-    protected Integer points = 0;
+    protected int points;
     //Позиция на поле
-    protected Boolean attacks;
+    protected boolean attacks;
 
-    //Метод для собирания колоды карт
-    protected abstract void setDeck();
-    //Метод для получения колоды карт
-    public abstract ArrayList<Integer> getDeck();
-
-    //Метод для добавления нового хода
-    public abstract void addMove();
-    //Метод для получения всех сделанных ходов
-    public abstract  ArrayList<Integer> getMoves();
-    //Метод для получения последнего хода, сделанного игроком
-    public abstract Integer getLastMove();
-
-    //Метод для установки текущей позиции игрока на поле
-    public abstract void setState(Boolean state);
-    //Метод для получения текущей позиции игрока на поле
-    public abstract Boolean getState();
-
-    //Метод для добавления штрафных очков
-    public abstract void setPoints(Integer _points);
-    //Метод для получения текущего количества штрафных очков
-    public abstract Integer getPoints();
+    //Базовый конструктор
+    Player() {
+        cards = new LinkedList<>();
+        moves = new LinkedList<>();
+        points = 0;
+        fillDeck();
+    }
 
     //Метод для получения имени класса
     public abstract String getName();
+
+    //Метод для добавления нового хода
+    public abstract void addMove();
+
+    //Метод для собирания колоды карт
+    //заполняем доску. Метод set несет несколько другое смысловое значение
+    protected void fillDeck() {
+        for (int i = 0; i < 12; i++){
+            cards.add(i);
+        }
+    }
+
+    //Метод для получения колоды карт
+    public LinkedList<Integer> getDeck() {
+        return cards;
+    }
+    //Метод для получения всех сделанных ходов
+    public LinkedList<Integer> getMoves() {
+        return moves;
+    }
+
+    //Метод для получения последнего хода, сделанного игроком
+    public int getLastMove() {
+        return moves.getLast();
+    }
+
+    //Метод для установки текущей позиции игрока на поле
+    public void setState(boolean state) {
+        this.attacks = state;
+    }
+    //Метод для получения текущей позиции игрока на поле
+    public boolean getState() {
+        return attacks;
+    }
+
+    //Метод для добавления штрафных очков
+    public void addPoints(int _points) {
+        points += _points;
+    }
+
+    //Метод для получения текущего количества штрафных очков
+    public int getPoints() {
+        return points;
+    }
 
 }
