@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.LinkedList;
 //Абстрактный класс для более приятного построения методов и двух производных классов User и AI
 public abstract class Player {
@@ -24,10 +23,9 @@ public abstract class Player {
     public abstract String getName();
 
     //Метод для добавления нового хода
-    public abstract void addMove();
+    public abstract void addMove(LinkedList<Integer> EnemyMoves);
 
     //Метод для собирания колоды карт
-    //заполняем доску. Метод set несет несколько другое смысловое значение
     protected void fillDeck() {
         for (int i = 0; i < 12; i++){
             cards.add(i);

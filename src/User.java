@@ -1,19 +1,28 @@
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class User extends Player {
-    //Базовый конструктор
+    //Метод для вывода колоды
+    private static void displayList(LinkedList<Integer> deck, String message){
+        if (deck.size()!=0) {
+            System.out.println(message);
+            System.out.print("( ");
+            //Выводим информацию о том, какой набор карт у нас есть
+            deck.forEach((var el)-> System.out.printf("[ %d ] ", el));
+            System.out.println(")");
+        }
+    }
     //Для чего нужны методы с ключевым словом @Override описанно в классе Player
     @Override
-    public void addMove(){
+    public void addMove(LinkedList<Integer> EnemyMoves){
         //Выводим информацию о том, что нам сейчас надо делать атаковать или защищаться
         System.out.println("Вы " + (this.getState()? "атакуете" : "защищаетесь"));
-        System.out.println("Ваши колода выглядит следующим образом:");
-        System.out.print("( ");
-        //Выводим информацию о том, какой набор карт у нас есть
-        cards.forEach((var el)-> System.out.printf("[ %d ] ", el));
-        System.out.print(")");
+        //немного казуально, но решил сделать подобное, ибо любой игрок может и так спокойно запомнить ходы противника
+        displayList(EnemyMoves, "Предыдущие ходы противника:");
+        //Выводим колоду игрока:
+        displayList(cards, "Ваша колода выглядит следующим образом:");
         //Делаем выбор из предложенных карт
-        System.out.print("\nВы выбрали: ");
+        System.out.print("Вы выбираете карту: ");
         Scanner in = new Scanner(System.in);
         int move;
         move = in.nextInt();
@@ -22,7 +31,7 @@ public class User extends Player {
         while(!this.getDeck().contains(move)){
 
             System.out.println("Ваш ввод был некорректным, поробуйте ещё раз");
-            System.out.print("\nВы выбрали карту с индексом: ");
+            System.out.println("Вы выбрали карту с индексом: " + move);
             move = in.nextInt();
 
         }

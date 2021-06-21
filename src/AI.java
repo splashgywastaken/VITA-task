@@ -1,20 +1,33 @@
 import java.util.Collections;
+import java.util.LinkedList;
 
 public class AI extends Player {
 
     //Для чего нужны методы с ключевым словом @Override описанно в классе Player
     @Override
-    public void addMove(){
-        //Алгоритм по выбору того, как ИИ будет ходить
-        //Пока что максимально простой алгоритм: ИИ берет самую сильную карту для защиты и самую слабую для атаки
+    public void addMove(LinkedList<Integer> EnemyMoves){
         Integer move;
-        if (getState())
+        if (cards.size() >= 6){
             move = Collections.min(cards);
-        else
-            move = Collections.max(cards);
-        cards.remove(move);
-        moves.add(move);
+        }
+        else {
+            //возможные для противника ходы:
+            LinkedList<Integer> possibleEMoves = new LinkedList<>();
+            for (int i = 0; i < 11; i++)
+                if (!EnemyMoves.contains(i))
+                    possibleEMoves.add(i);
 
+            if (getState()){
+                move = Collections.max(cards);
+            } else {
+                if (Collections.max(possibleEMoves) >= Collections.max(cards))
+                    move = Collections.max(cards);
+                else
+                    move = Collections.min(cards);
+            }
+        }
+        moves.add(move);
+        cards.remove(move);
     }
     @Override
     public String getName(){

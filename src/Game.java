@@ -20,22 +20,34 @@ public class Game {
         player2.setState(boolSwitch);
 
     }
+    //Функция для задержки вывода в консоли
+    private void delay(int time){
+        try{
+            TimeUnit.MILLISECONDS.sleep(time);
+        } catch (InterruptedException e){
+            Thread.currentThread().interrupt();
+        }
+    }
 
     private void round() {
 
         //Ход первого игрока, вызываем метод класса по добавлению нового хода в "историю" ходов
         System.out.println("Выберите карту для разыгровки в раунде");
-        player1.addMove();
+        //Вызываем функцию для добавления хода и передаем в нее ходы противника
+        player1.addMove(player2.getMoves());
         //Ход второго игрока, проводим аналогичные действия
         System.out.println("Игрок выбрал карту");
-        player2.addMove();
+        delay(100);
+        //Вызываем функцию для добавления хода и передаем в нее ходы противника
+        player2.addMove(player1.getMoves());
         //Ходы сделаны, карты на стол, теперь уже можно глянуть что там наворотил ИИ
         System.out.println("ИИ выбрал карту");
         System.out.println("выбор ИИ: " + player2.getLastMove());
+
         //Распределение штрафных очков между игроками по результатам раунда
         Player attacking = player1.getState() ? player1 : player2;
         Player defending = player1.getState() ? player2 : player1;
-
+        delay(50);
         int roundResult = attacking.getLastMove() - defending.getLastMove();
         if (roundResult > 0) {
             //Выводим соответствующее сообщение
@@ -45,16 +57,9 @@ public class Game {
         }else {  //Иначе выводим сообщение о том, что защита  выстояла
             System.out.println("Защита " + defending.getName() + " была успешна");
         }
-
-
         //Делаем небольшую задержку перед сменой сторон
-        try{
-        TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e){
-            Thread.currentThread().interrupt();
-        }
-        //Смена сторон
-        // Т.е. позицией атакующего/защищающегося
+        delay(100);
+        //Смена сторон т.е. позиции атакующего/защищающегося
         switchSides();
 
         gameEnded = player1.getDeck().isEmpty() || player2.getDeck().isEmpty();
@@ -89,7 +94,7 @@ public class Game {
         while (!(whoStarts.equals("P") || whoStarts.equals("A"))){
             //Проверка на дурака
             System.out.println("Ввод был некорректным, попробуйте снова.");
-            System.out.print("\nВы выбрали карту со значением: ");
+            System.out.println("Вы выбрали карту со значением: ");
             whoStarts = in.nextLine();
 
         }
